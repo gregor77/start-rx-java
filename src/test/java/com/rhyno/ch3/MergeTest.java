@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,7 +18,7 @@ public class MergeTest {
     private Merge subject;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         subject = new Merge();
     }
 
@@ -29,18 +30,18 @@ public class MergeTest {
                 subject.fastAlgo()
         );
 
-        TestObserver<String> testObservable = new TestObserver<>();
-        all.subscribe(testObservable);
+        TestObserver<String> testObserver = new TestObserver<>();
+        all.subscribe(testObserver);
 
         TimeUnit.SECONDS.sleep(8);
 
-        testObservable.assertComplete();
+        testObserver.assertComplete();
 
-        List<String> emittedEvents = testObservable.getEvents().get(0)
+        List<String> emittedEvents = testObserver.getEvents().get(0)
                 .stream()
                 .map(Object::toString)
                 .collect(Collectors.toList());
-        System.out.println("merge is not ");
+        System.out.println("merge is not guarantee event order");
         System.out.println("[emitted events] " + emittedEvents);
 
         assertThat(emittedEvents).isNotEqualTo(Lists.newArrayList(
@@ -50,5 +51,69 @@ public class MergeTest {
         ));
     }
 
+    @Test
+    public void whenMergeDuringThrowError_thenStopEmitEvents() throws InterruptedException {
+        // Error Handling에는 여러가지 방법이 존재
+        // 1. Action on Error
+        AtomicBoolean isFail = new AtomicBoolean(false);
 
+        Observable.merge(
+                subject.preciseAlgo(),
+                subject.exprementalAlgo(),
+                subject.fastAlgo(),
+                subject.throwErrorAlgo()
+        )
+        .subscribe(
+                System.out::println,
+                err -> {
+                    System.out.println(Thread.currentThread().getName() + err);
+                    isFail.set(true);
+                });
+
+        TimeUnit.SECONDS.sleep(8);
+
+        assertThat(isFail).isTrue();
+
+//        TestObserver<String> testObserver = new TestObserver<>();
+//        all.subscribe(testObserver);
+//
+//        TimeUnit.SECONDS.sleep(8);
+//
+//        testObserver.assertError(err -> "fail to emit event: 2".equals(err.getMessage()));
+//        List<String> emittedEvents = testObserver.getEvents().get(0)
+//                .stream()
+//                .map(Object::toString)
+//                .collect(Collectors.toList());
+//        System.out.println("[emitted events] " + emittedEvents);
+//
+//        assertThat(emittedEvents.size()).isNotEqualTo(9);
+    }
+
+    @Test
+    public void whenMergeDelayError_thenDelayErrorAfterEmitAllEvents() throws InterruptedException {
+        Observable<String> all = Observable.mergeDelayError(
+                subject.preciseAlgo(),
+                subject.exprementalAlgo(),
+                subject.fastAlgo(),
+                subject.throwErrorAlgo()
+        );
+
+        TestObserver<String> testObserver = new TestObserver<>();
+        all.subscribe(testObserver);
+
+        TimeUnit.SECONDS.sleep(8);
+
+        testObserver.assertError(err -> "fail to emit event: 2".equals(err.getMessage()));
+        List<String> emittedEvents = testObserver.getEvents().get(0)
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+        System.out.println("[emitted events] " + emittedEvents);
+
+        assertThat(emittedEvents).contains(
+                "precise-1", "precise-2", "precise-3",
+                "exp-1", "exp-2", "exp-3",
+                "fast-1", "fast-2", "fast-3"
+        );
+    }
 }

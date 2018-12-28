@@ -24,4 +24,14 @@ public class Merge {
 //                .flatMap(i -> Observable.just("exp-" + i));
                 .flatMap(i -> timer(3, TimeUnit.SECONDS).map(v -> "exp-" + i));
     }
+
+    public Observable<String> throwErrorAlgo() {
+        return Observable.just(1, 2, 3)
+                .flatMap(i -> {
+                    if (i == 3) {
+                        throw new Exception("fail to emit event: " + i);
+                    }
+                    return timer(3, TimeUnit.SECONDS).map(v -> "error-" + i);
+                });
+    }
 }
