@@ -33,6 +33,7 @@ http://reactivex.io/documentation/ko/operators  Observable 연산자 결정트�
   * onErrorResumeNext()는 오류가 발생하면 시퀀스를 다시 시작하지 않는다.
    
 #### 참조
+  - [RxJava2를 도입하며](https://medium.com/rainist-engineering/migrate-from-rxjava1-to-rxjava2-3aea3ff9051c)
   - [Observable의 연산자 결정트리](http://reactivex.io/documentation/ko/operators)
   - https://rxjava-doc.readthedocs.io/en/latest/What's-different-in-2.0/
   - [RxJava2 Error Handling](https://www.baeldung.com/rxjava-error-handling)
