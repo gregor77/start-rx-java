@@ -1,4 +1,4 @@
-package com.rhyno.ch3;
+package com.rhyno.rx.ch3;
 
 import com.rhyno.rx.ch3.file.File;
 import com.rhyno.rx.ch3.file.FileService;

@@ -1,6 +1,5 @@
-package com.rhyno.ch3;
+package com.rhyno.rx.ch3;
 
-import com.rhyno.rx.ch3.Delay;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import org.junit.Before;

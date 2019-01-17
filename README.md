@@ -42,7 +42,9 @@ http://reactivex.io/documentation/ko/operators  Observable 연산자 결정트�
   * 또한 RxJava는 오류 (예외는 발생하지 않음)가 발생할 때 제공된 Observable을 사용하여 시퀀스를 계속할 수있는 대체 방법을 제공합니다.
   * onErrorResumeNext()는 오류가 발생하면 시퀀스를 다시 시작하지 않는다.
    
-#### 참조
+#### 참조 
+  - [Hot vs Cold Observable](https://www.youtube.com/watch?v=IDy21J75eyU)
+  - [RxJS in depth](https://www.youtube.com/watch?v=KOOT7BArVHQ)
   - [RxJava2를 도입하며](https://medium.com/rainist-engineering/migrate-from-rxjava1-to-rxjava2-3aea3ff9051c), RxJava1과 비교하여 변경되는 부분을 확인하려면 반드시 읽어볼것
   - [Observable의 연산자 결정트리](http://reactivex.io/documentation/ko/operators)
   - https://rxjava-doc.readthedocs.io/en/latest/What's-different-in-2.0/

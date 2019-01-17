@@ -1,7 +1,7 @@
 package com.rhyno.rx.ch3;
 
-import com.rhyno.rx.sample.Status;
 import com.rhyno.rx.sample.Tweet;
+import com.rhyno.rx.sample.Status;
 import io.reactivex.Observable;
 
 import java.time.Instant;

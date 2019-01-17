@@ -1,4 +1,4 @@
-package com.rhyno.ch3;
+package com.rhyno.rx.ch3;
 
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;

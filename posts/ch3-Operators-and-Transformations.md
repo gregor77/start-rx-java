@@ -37,3 +37,11 @@ event가 downstream으로 흐르는 동안의 값을 보관하거나, 누적하�
 * reduce(), 최종 누적된 결과만 한번 방출한다
 * 예: chunk 파일 진행의 최종 결과만 관심있는 경우
 * reduce(initialValue, Biconsumer) 의 'eventCount = 1(initialValue) + upstream size' 이다.
+
+#### compose
+compose()는 몇몇 연산자를 연결하여 업스트림 Observable을 변환하는 함수를 인자로 받는다.
+
+#### lift
+사용자 정의 연산자를 만들기는 까다롭다. backpressure 문제와 구독 원리를 고려해야한다. 최대한 기존 연산자를 활용하여 목적을 달성하자
+
+* 

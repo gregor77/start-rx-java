@@ -1,4 +1,4 @@
-package com.rhyno.ch1;
+package com.rhyno.rx.ch1;
 
 import io.reactivex.Observable;
 import org.junit.Test;

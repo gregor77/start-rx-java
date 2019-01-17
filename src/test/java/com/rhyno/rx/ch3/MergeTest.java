@@ -1,6 +1,5 @@
-package com.rhyno.ch3;
+package com.rhyno.rx.ch3;
 
-import com.rhyno.rx.ch3.Merge;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import org.assertj.core.util.Lists;
