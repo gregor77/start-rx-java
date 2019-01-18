@@ -1,11 +1,13 @@
 package com.rhyno.rx.ch4.flight;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Builder
@@ -18,4 +20,16 @@ public class Flight {
     private Long id;
 
     private String flightNo;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "flight")
+    private List<BookTicket> bookTickets;
+
+    @Override
+    public String toString() {
+        return "Flight{" +
+                "id=" + id +
+                ", flightNo='" + flightNo + '\'' +
+                '}';
+    }
 }

@@ -1,5 +1,11 @@
 package com.rhyno.rx.ch4.flight;
 
+import com.rhyno.rx.ch4.flight.api.SmtpApi;
+import com.rhyno.rx.ch4.flight.api.SmtpResponse;
+import com.rhyno.rx.ch4.flight.repository.BookTicketRepository;
+import com.rhyno.rx.ch4.flight.repository.FlightRepository;
+import com.rhyno.rx.ch4.flight.repository.PassengerRepository;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,7 +14,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,11 +39,24 @@ public class FlightServiceTest {
     private PassengerRepository mockPassengerRepository;
     @Mock
     private BookTicketRepository mockBookTicketRepository;
+    @Mock
+    private SmtpApi mockSmtpApi;
     @Captor
     private ArgumentCaptor<BookTicket> bookTicketCaptor;
 
     @Test
-    public void whenLookUpFlight_thenReturnFoundFlightByNo() {
+    public void givenNoExistFlight_whenLookupFlight_thenThrowNoFlightError() {
+        try {
+            subject.lookupFlight("any-no");
+            Assert.fail("must be not called");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isEqualTo("No flight error");
+        }
+    }
+
+    @Test
+    public void whenLookUpFlight_thenReturnFoundFlightByNo() throws Exception {
+        when(mockFlightRepository.findByFlightNo("any-no")).thenReturn(Optional.of(Flight.builder().build()));
         subject.lookupFlight("any-no");
 
         then(mockFlightRepository).should().findByFlightNo("any-no");
@@ -56,38 +77,12 @@ public class FlightServiceTest {
         try {
             subject.findPassenger(1L);
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("No exists passenger");
-        }
-    }
-
-    @Test
-    public void givenNoFlight_whenBookTicket_thenThrowNoFlightError() {
-        try {
-            subject.bookTicket(anyFlight, anyPassenger);
-            Assert.fail("must be not called");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("No flight error");
-        }
-    }
-
-    @Test
-    public void givenNoPassenger_whenBookTicket_thenThrowNoPassengerError() {
-        when(mockFlightRepository.findByFlightNo(ANY_FLIGHT_NO))
-                .thenReturn(Optional.of(Flight.builder().id(ANY_ID).flightNo(ANY_FLIGHT_NO).build()));
-
-        try {
-            subject.bookTicket(anyFlight, anyPassenger);
-            Assert.fail("must be not called");
-        } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("No passenger error");
         }
     }
 
     @Test
-    public void whenBookTicketWithFlightAndPassenger_thenReturnBookTicket() throws Exception {
-        when(mockFlightRepository.findByFlightNo(ANY_FLIGHT_NO)).thenReturn(Optional.of(anyFlight));
-        when(mockPassengerRepository.findById(ANY_ID)).thenReturn(Optional.of(anyPassenger));
-
+    public void whenBookTicket_withFlightAndPassenger_thenReturnBookTicket() throws Exception {
         subject.bookTicket(anyFlight, anyPassenger);
 
         then(mockBookTicketRepository).should().save(bookTicketCaptor.capture());
@@ -99,7 +94,26 @@ public class FlightServiceTest {
     @Test
     public void whenSendEmail_thenReturnSmtpResponse() {
         BookTicket anyTicket = BookTicket.builder().id(ANY_ID).flight(anyFlight).passenger(anyPassenger).build();
+        when(mockSmtpApi.sendEmail(anyTicket))
+                .thenReturn(SmtpResponse.builder().status(HttpStatus.OK).build());
 
-        subject.sendEmail(anyTicket);
+        SmtpResponse smtpResponse = subject.sendEmail(anyTicket);
+
+        assertThat(smtpResponse).isEqualTo(SmtpResponse.builder().status(HttpStatus.OK).build());
+    }
+
+    @Test
+    public void whenGetTicketsByFlight_thenFindTicketsByFlightNo() throws Exception {
+        BookTicket firstTicket = BookTicket.builder().id(1L).build();
+        BookTicket secondTicket = BookTicket.builder().id(2L).build();
+
+        when(mockFlightRepository.findByFlightNo(ANY_FLIGHT_NO))
+                .thenReturn(Optional.of(Flight.builder()
+                        .flightNo(ANY_FLIGHT_NO)
+                        .bookTickets(Lists.newArrayList(firstTicket, secondTicket))
+                        .build()));
+
+        List<BookTicket> result = subject.getTicketsByFlight(ANY_FLIGHT_NO);
+        assertThat(result).containsExactly(firstTicket, secondTicket);
     }
 }
